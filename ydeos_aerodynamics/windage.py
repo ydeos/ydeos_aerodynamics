@@ -1,6 +1,6 @@
 # coding: utf-8
 
-r"""Windage
+r"""Windage.
 
 # **** DOUBTS ****
 # kx value for RectBivariateSpline
@@ -23,8 +23,10 @@ def windage_hull(tws: float,
                  loa: float,
                  beam_max: float,
                  rho_air: float = RHO_AIR_20C) -> Force:
-    r"""Hull windage
+    r"""Hull windage.
 
+    Parameters
+    ----------
     tws : true wind speed [m/s], positive
     twa : true wind angle [degrees], between -180 and 180
     boatspeed : [m/s]
@@ -69,12 +71,13 @@ def windage_hull(tws: float,
     arefs = []
     for awa in awas:
         values = []
-        for heel_angle in heel_angle_samples:
+        for heel_angle_sample in heel_angle_samples:
             if awa != 90.:
                 values.append(freeboard_average * beam_max)
             else:
                 values.append(hull_side_area_upright +
-                              half_deck_surface * sin(radians(heel_angle)))
+                              half_deck_surface
+                              * sin(radians(heel_angle_sample)))
         arefs.append(values)
     arefs = np.array(arefs)
     aref_interpolant = RectBivariateSpline(awas,
@@ -98,7 +101,12 @@ def windage_hull(tws: float,
     # positive with awa  positive (stbd), negative on port
     # side = drag * sin(radians(awa))
 
-    return Force(-drag * cos(radians(awa)), drag * sin(radians(awa)), 0, loa / 2., 0., z_ce)
+    return Force(-drag * cos(radians(awa)),
+                 drag * sin(radians(awa)),
+                 0,
+                 loa / 2.,
+                 0.,
+                 z_ce)
 
 
 def windage_mast_with_sail(tws: float,
@@ -112,13 +120,16 @@ def windage_mast_with_sail(tws: float,
                            mast_front_area: float,
                            mast_side_area: float,
                            rho_air: float = RHO_AIR_20C) -> Force:
-    r"""Calculates the force caused by the windage of the mast
+    r"""Calculates the force caused by the windage of the mast.
 
+    Parameters
+    ----------
     tws : true wind speed [m/s], positive
     twa : true wind angle [degrees], between -180 and 180
     boatspeed : [m/s]
     heel_angle : [degrees], between -90 and 90
-    trim_angle : [degrees], bow up is positive. If not provided, the default value is 0.
+    trim_angle : [degrees], bow up is positive.
+                 If not provided, the default value is 0.
     mast_x : mast x position
     mast_z_bottom : Altitude of the lowest part of the mast that is
                     exposed to the wind.
@@ -166,7 +177,10 @@ def windage_mast_with_sail(tws: float,
             s_times_c_drag.append(0.4 * mast_front_area)
         else:
             s_times_c_drag.append(0.6 * mast_side_area)
-    s_times_c_drag_interpolant = UnivariateSpline(awas, s_times_c_drag, k=2, s=0)
+    s_times_c_drag_interpolant = UnivariateSpline(awas,
+                                                  s_times_c_drag,
+                                                  k=2,
+                                                  s=0)
 
     if twa == 0.:
         sign = 0.
@@ -183,7 +197,9 @@ def windage_mast_with_sail(tws: float,
     # positive with awa  positive (stbd), negative on port
     y_force = drag * sin(radians(awa))
 
-    return Force(x_force, y_force, 0,
+    return Force(x_force,
+                 y_force,
+                 0,
                  mast_x - upright_centre_of_effort_altitude * sin(radians(trim_angle)),
                  upright_centre_of_effort_altitude * sin(radians(heel_angle)) * sign,
                  upright_centre_of_effort_altitude * cos(radians(heel_angle)))

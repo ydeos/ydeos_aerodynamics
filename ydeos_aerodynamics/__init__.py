@@ -1,9 +1,9 @@
 # coding: utf-8
 
-r"""ydeos_aerodynamics __init__"""
+r"""ydeos_aerodynamics __init__.py."""
 
 
-__name__ = "ydeos_aerodynamics"
+__project_name__ = "ydeos_aerodynamics"
 __description__ = "aerodynamics computations"
 
 __version__ = "2020.10.10"

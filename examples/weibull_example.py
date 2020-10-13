@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-r"""Weibull wind speed distribution example"""
+r"""Weibull wind speed distribution example."""
 
 import matplotlib.pyplot as plt
 

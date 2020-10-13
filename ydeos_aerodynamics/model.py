@@ -1,8 +1,9 @@
 # coding: utf-8
 
-r"""Aerodynamic forces model based on the ORC 2013 model
+r"""Aerodynamic forces model based on the ORC 2013 model.
 
-TODO
+Todo:
+----
   kpp
   eqn. [39] of ORC VPP 2013 (currently not taken into account)
   forward shift of CE at attached apparent wind angles (cf. Marchaj + see pdfs)
@@ -20,16 +21,19 @@ from ydeos_aerodynamics.apparent import apparent_wind_angle, apparent_wind_speed
 
 # Sail forces coefficients
 
-class _Interpolant(object):
-    """Interpolable object (for sail coefficients)"""
+class _Interpolant:
+    """Interpolable object (for sail coefficients).
+
+    Parameters
+    ----------
+    x : A 1-D array of monotonically increasing real values.
+    y : A 1-D array of the same size as x
+
+    """
 
     def __init__(self, x: List[float], y: List[float]):
-        """
-        x : A 1-D array of monotonically increasing real values.
-        y : A 1-D array of the same size as x
-
-        """
-        assert len(x) == len(y)
+        if len(x) != len(y):
+            raise ValueError("x and y should have the same length")
         self._x = x
         self._y = y
         # self._interpolant = interpolate.UnivariateSpline(x, y, s=0)
@@ -43,12 +47,11 @@ class _Interpolant(object):
     def __call__(self, val: float) -> float:
         if self._x[-1] >= val >= self._x[0]:
             return self._interpolant(val)
-        else:
-            return 0
+        return 0
 
 
-class ImsAeroModelCoefficients(object):
-    """Build aerodynamic model coefficient interpolable objects"""
+class ImsAeroModelCoefficients:
+    """Build aerodynamic model coefficient interpolable objects."""
 
     # MAIN
     main_cl = _Interpolant([0.0, 12.0, 13.0, 15.0, 20.0, 30.0, 60.0, 90.0, 120.0, 170.0],
@@ -87,12 +90,8 @@ class ImsAeroModelCoefficients(object):
                               [0.050, 0.032, 0.031, 0.037, 0.250, 0.350, 0.730, 0.950, 0.900])
 
     # BOOMED JIB
-    # boomed_jib_cl = _Interpolant([ 8.0, 19.0, 20.0, 21.0, 40.0, 50.0, 60.0, 80.0, 100.0, 170.0 ],
-    #                                  [ 0.0,  1.44, 1.45, 1.45, 1.43, 1.41, 1.30, 1.00,  0.70,  0.0 ])
     boomed_jib_cl = _Interpolant([7., 15., 20., 27., 50., 60., 100., 160., 180.],
                                  [0.000, 1.000, 1.375, 1.450, 1.430, 1.250 * 1.05, 0.400 * 1.3, 0.000, -0.100])
-    # boomed_jib_cd = _Interpolant([ 16.0, 28.0, 40.0, 60.0, 80.0, 100.0, 120.0, 140.0, 160.0, 180.0 ],
-    #                                  [ 0.0,   0.03, 0.06, 0.12, 0.25,  0.45,  0.70,  0.92,  1.05,  1.10 ])
     boomed_jib_cd = _Interpolant([7., 15., 20., 27., 50., 60., 100., 150., 180.],
                                  [0.050, 0.032, 0.031, 0.037, 0.250, 0.350, 0.730 * 1.1, 0.950 * 1.2, 0.900 * 1.3])
 
@@ -120,7 +119,7 @@ class ImsAeroModelCoefficients(object):
     A_spinnaker_on_pole_cl = _Interpolant([28., 41., 50., 60., 67., 75., 100., 115., 130., 150., 180.],
                                           [0.085, 1.114, 1.360, 1.513, 1.548, 1.479, 1.207, 0.956, 0.706, 0.425, 0.000])
     A_spinnaker_on_pole_cd = _Interpolant([28., 41., 50., 60., 67., 75., 100., 115., 130., 150., 180.],
-                                          [0.170, 0.238, 0.306, 0.459, 0.392, 0.493, 0.791, 0.894, 0.936,  0.936,
+                                          [0.170, 0.238, 0.306, 0.459, 0.392, 0.493, 0.791, 0.894, 0.936, 0.936,
                                            0.936])
 
     # CODE_ZERO (ORC 2013)
@@ -131,13 +130,23 @@ class ImsAeroModelCoefficients(object):
 
     @staticmethod
     def coefficient(sail_type: str, awa: float) -> Tuple[float, float]:
-        """Return the values (cl,cd) of the aero coefficients for a given sail type and apparent wind angle"""
-        cl, cd = ImsAeroModelCoefficients.coefficient_interp(sail_type)
-        return cl(awa), cd(awa)
+        """Lift and drag coefficients.
+
+        Return the values (cl,cd) of the aero coefficients
+        for a given sail type and apparent wind angle
+
+        """
+        c_lift, c_drag = ImsAeroModelCoefficients.coefficient_interp(sail_type)
+        return c_lift(awa), c_drag(awa)
 
     @staticmethod
     def coefficient_interp(sail_type: str) -> Tuple[_Interpolant, _Interpolant]:
-        """Get a tuple of interpolable objects representing the lift and drag coefficients for the given sail type"""
+        """Lift and drag coefficient interpolators.
+
+        Get a tuple of interpolable objects representing the lift and drag
+        coefficients for the given sail type
+
+        """
         try:
             return (getattr(ImsAeroModelCoefficients, sail_type + '_cl'),
                     getattr(ImsAeroModelCoefficients, sail_type + '_cd'))
@@ -145,30 +154,47 @@ class ImsAeroModelCoefficients(object):
             raise ValueError('Unknown sail type')
 
 
-#
-
-def aero_force(tws: float, twa: float, boatspeed: float, heel_angle: float, trim_angle: float,
-               mainsail_type: str, mainsail_area: float, mainsail_coe: Tuple[float, float, float],
-               frontsail_type: str, frontsail_area: float, frontsail_coe: Tuple[float, float, float],
-               rig_z_max: float, flat: float = 1.0, fractionality: float = 0.8, overlap: float = 1.1,
-               roach: float = 0.2, rho_air: float = RHO_AIR_20C) -> Force:
-    r"""Aero force inspired by ORC 2013 model
+def aero_force(tws: float,
+               twa: float,
+               boatspeed: float,
+               heel_angle: float,
+               trim_angle: float,
+               mainsail_type: str,
+               mainsail_area: float,
+               mainsail_coe: Tuple[float, float, float],
+               frontsail_type: str,
+               frontsail_area: float,
+               frontsail_coe: Tuple[float, float, float],
+               rig_z_max: float,
+               flat: float = 1.0,
+               fractionality: float = 0.8,
+               overlap: float = 1.1,
+               roach: float = 0.2,
+               rho_air: float = RHO_AIR_20C) -> Force:
+    r"""Aero force inspired by ORC 2013 model.
 
     tws : true wind speed [m/s], positive
     twa : true wind angle [degrees], between -180 and 180
     boatspeed : [m/s]
     heel_angle : [degrees], between -90 and 90
-    trim_angle : [degrees], bow up is positive. Used to shift the X position of the centre of effort when the boat
-                 has trim angle.
+    trim_angle : [degrees], bow up is positive.
+                 Used to shift the X position of the centre of effort
+                 when the boat has a trim angle.
     mainsail_type : The type of mainsail, has to be an entry of the coefficients
     mainsail_area: [m**2], must be > 0.
-    mainsail_coe : Represents the x, y, z coordinates of the mainsail centre of effort
-    frontsail_type : The type of frontsail, has to be an entry of the coefficients
+    mainsail_coe : Represents the x, y, z coordinates
+                   of the mainsail centre of effort
+    frontsail_type : The type of frontsail,
+                     has to be an entry of the coefficients
     frontsail_area : [m**2], must be > 0.
-    frontsail_coe : Represents the x, y, z coordinates of the frontsail centre of effort
-    rig_z_max : mainsail head z or avg (mainsail head z, frontsail head z) if frontsail head z > mainsail head z
-    flat : FLAT parameter, between 0 and 1. Realistic values are between 0.6 and 1.0
-    fractionality : Icurrent/(Pcurrent+BAS). Realistic values are between 0.6 and 1.0
+    frontsail_coe : Represents the x, y, z coordinates
+                    of the frontsail centre of effort
+    rig_z_max : mainsail head z or avg (mainsail head z,
+                frontsail head z) if frontsail head z > mainsail head z
+    flat : FLAT parameter, between 0 and 1.
+           Realistic values are between 0.6 and 1.0
+    fractionality : Icurrent/(Pcurrent+BAS).
+                    Realistic values are between 0.6 and 1.0
     overlap : LPGcurrent/J, Realistic values are between 0.7 and 2.0
     roach : Mainsail Area /(P x E / 2) -1
     rho_air : air density [kg/m**3], must be >= 0
@@ -179,9 +205,9 @@ def aero_force(tws: float, twa: float, boatspeed: float, heel_angle: float, trim
         raise ValueError("mainsail_area must be positive or zero")
     if frontsail_area < 0.:
         raise ValueError("frontsail_area must be positive or zero")
-    if not (0 <= flat <= 1. or flat > 1.):
+    if not 0 <= flat <= 1. or flat > 1.:
         raise ValueError("wrong flat value")
-    if not (0 <= fractionality <= 1.):
+    if not 0 <= fractionality <= 1.:
         raise ValueError("wrong fractionality value")
     if overlap < 0.:
         raise ValueError("overlap must be positive or zero")
@@ -200,15 +226,18 @@ def aero_force(tws: float, twa: float, boatspeed: float, heel_angle: float, trim
     if roach < -0.2 or roach > 2.0:
         warnings.warn('roach realistic values are between -0.2 and 2.0')
 
-    mainsail_c_lift, mainsail_c_drag = ImsAeroModelCoefficients.coefficient_interp(mainsail_type)
-    frontsail_c_lift, frontsail_c_drag = ImsAeroModelCoefficients.coefficient_interp(frontsail_type)
+    mainsail_c_lift, mainsail_c_drag = \
+        ImsAeroModelCoefficients.coefficient_interp(mainsail_type)
+    frontsail_c_lift, frontsail_c_drag = \
+        ImsAeroModelCoefficients.coefficient_interp(frontsail_type)
 
     twa_sign = twa / abs(twa) if twa != 0. else 0.
 
-    # phi_up = phi_up(heel_angle)
+    awa_phi_up = apparent_wind_angle(tws,
+                                     abs(twa),
+                                     boatspeed,
+                                     phi_up(heel_angle))
 
-    awa_phi_up = apparent_wind_angle(tws, abs(twa), boatspeed, phi_up(heel_angle))
-    # aws_phi_up = apparent_wind_speed(tws, abs(twa), boatspeed, phi_up(heel_angle))
     awa = apparent_wind_angle(tws, abs(twa), boatspeed, heel_angle)
     aws = apparent_wind_speed(tws, abs(twa), boatspeed, heel_angle)
 
@@ -294,26 +323,34 @@ def aero_force(tws: float, twa: float, boatspeed: float, heel_angle: float, trim
                  z_coe_twist * cos(radians(heel_angle)))  # TODO: X position
 
 
-def effective_span_correction(roach: float, fractionality: float, overlap: float) -> float:
-    """ORC 2013 eqn. [38]"""
+def effective_span_correction(roach: float,
+                              fractionality: float,
+                              overlap: float) -> float:
+    """ORC 2013 eqn. [38]."""
     return 1.1 + 0.08 * (roach - 0.2) + 0.5 * (0.68 + +0.31 * fractionality + 0.075 * overlap - 1.10)
 
 
 def phi_up(phi: float) -> float:
     """Correction for the heel_angle used to interpolate the coefficient curves.
+
     Defined on p49 (eqn. [43]) of ORC VPP documentation 2013
 
-    In the VPP as the yacht heels the apparent wind angle seen 
-    by the sails reduces, but on the water the crew have traveler and jib 
-    lead controls that permit adjustment of angle of attack. 
-    To reflect this the PHI_UP function modifies the heel angle 
-    that is used in the calculation of the 
-    apparent wind angle at which the collective curves of lift and drag 
-    coefficient are evaluated. 
+    In the VPP as the yacht heels the apparent wind angle seen
+    by the sails reduces, but on the water the crew have traveler and jib
+    lead controls that permit adjustment of angle of attack.
+    To reflect this the PHI_UP function modifies the heel angle
+    that is used in the calculation of the
+    apparent wind angle at which the collective curves of lift and drag
+    coefficient are evaluated.
+
     """
     return 10 * (phi / 30.) ** 2
 
 
 def twist(flat: float, fractionality: float) -> float:
-    """Corrector for COE height defined on p50 (eqn. [44]) of ORC VPP documentation 2013"""
+    """Corrector for COE height.
+
+    Defined on p50 (eqn. [44]) of ORC VPP documentation 2013
+
+    """
     return 1. - 0.203 * (1. - flat) - 0.451 * (1. - flat) * (1. - fractionality)

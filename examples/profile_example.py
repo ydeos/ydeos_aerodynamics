@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-r"""example use of profile.py"""
+r"""Example use of profile.py."""
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -46,9 +46,21 @@ ax.set_ylim([0., max_height])
 ax.grid(True)
 
 
-ax.plot(wind_speeds_power_law_0_11, heights, color="b", label="power law, alpha=0.11")
-ax.plot(wind_speeds_power_law_0_06, heights, color="r", label="power law, alpha=0.06")
-ax.plot(wind_speeds_loga_0_0002, heights, color="black", label="logarithmic, roughness=0.0002 m")
-ax.plot(wind_speeds_loga_0_055, heights, color="black", linestyle="--", label="logarithmic, roughness=0.055 m")
+ax.plot(wind_speeds_power_law_0_11,
+        heights,
+        color="b",
+        label="power law, alpha=0.11")
+ax.plot(wind_speeds_power_law_0_06, heights,
+        color="r",
+        label="power law, alpha=0.06")
+ax.plot(wind_speeds_loga_0_0002,
+        heights,
+        color="black",
+        label="logarithmic, roughness=0.0002 m")
+ax.plot(wind_speeds_loga_0_055,
+        heights,
+        color="black",
+        linestyle="--",
+        label="logarithmic, roughness=0.055 m")
 plt.legend(loc="upper right", fontsize=10)
 plt.show()

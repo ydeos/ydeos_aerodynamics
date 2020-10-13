@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-r"""tests for the air.py module"""
+r"""tests for the air.py module."""
 
 import math
 
@@ -10,8 +10,12 @@ from ydeos_aerodynamics.air import density_air, densities_air, \
 
 
 def test_temperature_bounds():
-    r"""Check that the values at each end of the temperature range
-    are equal to the specified values"""
+    r"""Temperature bounds.
+
+    Check that the values at each end of the temperature range
+    are equal to the specified values
+
+    """
     assert density_air(temperature=max(temperatures)) == min(densities_air)
     assert density_air(temperature=min(temperatures)) == max(densities_air)
 
@@ -22,8 +26,12 @@ def test_temperature_bounds():
 
 
 def test_wrong_temperature():
-    r"""Check that the values returned for a temperature that is outside
-    of the temperature definition range are NaN"""
+    r"""Wrong temperature.
+
+    Check that the values returned for a temperature that is outside
+    of the temperature definition range are NaN
+
+    """
     assert math.isnan(density_air(temperature=max(temperatures) + 1e-6))
     assert math.isnan(density_air(temperature=min(temperatures) - 1e-6))
 

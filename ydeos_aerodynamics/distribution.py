@@ -1,6 +1,6 @@
 # coding: utf-8
 
-r"""Wind speeds statistical distribution
+r"""Wind speeds statistical distribution.
 
 Follows a Weibull distribution law
 
@@ -37,24 +37,22 @@ from matplotlib.pyplot import Figure, Axes
 
 
 def weibull_pdf(x: float, lambda_: float = 1, k: float = 1.65) -> float:
-    r"""Probability distribution function"""
+    r"""Probability distribution function."""
     if x < 0:
         return 0
-    else:
-        return (k / lambda_) * (x / lambda_)**(k-1) * exp(-(x / lambda_)**k)
+    return (k / lambda_) * (x / lambda_)**(k - 1) * exp(-(x / lambda_)**k)
 
 
 def weibull_cdf(x: float, lambda_: float = 1, k: float = 1.65) -> float:
-    r"""Cumulative distribution function"""
+    r"""Cumulative distribution function."""
     if x < 0:
         return 0
-    else:
-        return 1 - exp(-(x / lambda_)**k)
+    return 1 - exp(-(x / lambda_)**k)
 
 
 def weibull_mean(lambda_: float = 1, k: float = 1.65) -> float:
-    r"""Mean value"""
-    return lambda_ * gamma(1 + 1/k)
+    r"""Mean value."""
+    return lambda_ * gamma(1 + 1 / k)
 
 
 def plot_weibull(to_x: float = 3,
@@ -65,17 +63,17 @@ def plot_weibull(to_x: float = 3,
                  show_cdf: bool = False,
                  show_random_samples: bool = True,
                  samples_info: bool = False) -> Tuple[Figure, Axes]:
-    r"""Plot the Weibull distribution"""
-    fig, ax = plt.subplots()
+    r"""Plot the Weibull distribution."""
+    figure, axes = plt.subplots()
     xs = np.linspace(0, to_x, samples, endpoint=True)
 
     if show_pdf:
         ys = [weibull_pdf(x, lambda_, k) for x in xs]
-        ax.plot(xs, ys, c="BLUE")
+        axes.plot(xs, ys, c="BLUE")
 
     if show_cdf:
         ys = [weibull_cdf(x, lambda_, k) for x in xs]
-        ax.plot(xs, ys, c="ORANGE")
+        axes.plot(xs, ys, c="ORANGE")
 
     if show_random_samples:
         nb_samples = int(1e5)
@@ -84,23 +82,23 @@ def plot_weibull(to_x: float = 3,
                                                 k=k,
                                                 samples_info=samples_info)
         # ax.hist(random_samples, bins=100, normed=True, color="gray")
-        ax.hist(random_samples, bins=100, color="gray")
+        axes.hist(random_samples, bins=100, color="gray")
 
-    ax.set_title(f"Weibull distribution\nlambda={lambda_:.3f}, k={k:.3f} "
-                 f"- Mean (theory) : {weibull_mean(lambda_, k):.3f}")
-    ax.set_xlim(xmin=0)
+    axes.set_title(f"Weibull distribution\nlambda={lambda_:.3f}, k={k:.3f} "
+                   f"- Mean (theory) : {weibull_mean(lambda_, k):.3f}")
+    axes.set_xlim(xmin=0)
     # Intentionally not setting an upper limit
     # Will be inferred by the max of samples values
-    ax.grid()
+    axes.grid()
 
-    return fig, ax
+    return figure, axes
 
 
 def weibull_random_samples(nb_samples: int = 10000,
                            lambda_: float = 1,
                            k: float = 1.65,
                            samples_info: bool = False) -> np.ndarray:
-    r"""Generate random samples"""
+    r"""Generate random samples."""
     random_samples = np.random.weibull(k, nb_samples)
     random_samples *= lambda_  # horizontal scaling
     if samples_info:

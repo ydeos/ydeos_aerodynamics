@@ -1,15 +1,19 @@
 # coding: utf-8
 
-r"""Wind profiles (i.e. variation of wind speed with altitude)"""
+r"""Wind profiles (i.e. variation of wind speed with altitude)."""
 
 from math import log
 
 
-def power_law(wind_speed_known: float, height_reference: float, height: float, alpha: float = 0.11) -> float:
-    r"""Wind profile power law
+def power_law(wind_speed_known: float,
+              height_reference: float,
+              height: float,
+              alpha: float = 0.11) -> float:
+    r"""Wind profile power law.
 
     wind_speed_known : The measured wind speed at height_reference
-    height_reference : The height at which the wind speed has been measured or is known
+    height_reference : The height at which the wind speed
+                       has been measured or is known
     height : The height at which we want to determine the wind speed
     alpha : float, optional (default is 0.11)
         stability related exponent, aka Hellman exponent
@@ -48,10 +52,11 @@ def logarithmic(wind_speed_known: float,
                 height_reference: float,
                 height: float,
                 roughness_length: float = 0.0002) -> float:
-    r"""Logarithmic wind profile
+    r"""Logarithmic wind profile.
 
     wind_speed_known : The measured wind speed at height_reference
-    height_reference : The height at which the wind speed has been measured or is known
+    height_reference : The height at which the wind speed
+                       has been measured or is known
     height : The height at which we want to determine the wind speed
     roughness_length : float, optional
                               (default is 0.0002,

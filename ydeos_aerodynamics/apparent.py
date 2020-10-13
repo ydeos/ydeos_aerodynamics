@@ -1,6 +1,6 @@
 # coding: utf-8
 
-r"""Apparent wind from true"""
+r"""Apparent wind from true."""
 
 from typing import Dict
 from math import cos, sin, radians, degrees, atan, sqrt
@@ -16,7 +16,7 @@ def apparent_wind_angle(true_wind_speed: float,
     true_wind_speed : true wind speed [m/s], must be >= 0
     true_wind_angle : true wind angle [degrees], must be between -180 and 180
                       positive on starboard tack, negative on port tack
-    boatspeed : [m/s] can be positive (forward motion) or negative(backwards motion)
+    boatspeed : [m/s], positive (forward motion) or negative(backwards motion)
     heel_angle : the heel angle [degrees], must be between -90 and 90
                  positive when the boat heels to leeward and
                  negative when the boat heels to windward
@@ -30,8 +30,11 @@ def apparent_wind_angle(true_wind_speed: float,
 
     Returns the apparent wind angle [degrees]
             the apparent wind angle must be between -180 and 180.
-            the apparent wind angle is positive on starboard tack, negative on port tack.
-            the true wind angle and the apparent wind angle always have the same sign.
+            the apparent wind angle is:
+            - positive on starboard tack
+            - negative on port tack.
+            the true wind angle and the apparent wind angle
+            always have the same sign.
 
     Raises
     ------
@@ -75,12 +78,14 @@ def apparent_wind_speed(true_wind_speed: float,
                         boatspeed: float,
                         heel_angle: float = 0.,
                         check_heel_angle: bool = False) -> float:
-    r"""Compute the apparent wind speed from true wind, boat speed and heel angle.
+    r"""Apparent wind speed from true wind, boat speed and heel angle.
 
     true_wind_speed : true wind speed [m/s], must be >= 0
     true_wind_angle : true wind angle [degrees], must be between -180 and 180
-                      true wind angle is positive on starboard tack, negative on port tack
-    boatspeed : [m/s] can be positive (forward motion) or negative(backwards motion)
+                      true wind angle is:
+                      - positive on starboard tack
+                      - negative on port tack
+    boatspeed : [m/s], positive (forward motion) or negative(backwards motion)
     heel_angle : [degrees], must be between -90 and 90
                  positive when the boat heels to leeward
                  negative when the boat heels to windward
@@ -124,8 +129,10 @@ def apparent_wind(true_wind_speed: float,
 
     true_wind_speed : true wind speed [m/s], must be >= 0
     true_wind_angle : true wind angle [degrees], must be between -180 and 180
-                      true wind angle is positive on starboard tack, negative on port tack
-    boatspeed : [m/s] can be positive (forward motion) or negative(backwards motion)
+                      true wind angle is:
+                      - positive on starboard tack
+                      - negative on port tack
+    boatspeed : [m/s], positive (forward motion) or negative(backwards motion)
     heel_angle : [degrees], must be between -90 and 90
                  positive when the boat heels to leeward
                  negative when the boat heels to windward

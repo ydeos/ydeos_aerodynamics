@@ -1,6 +1,6 @@
 # coding: utf-8
 
-r"""Shared force model"""
+r"""Shared force model."""
 
 import collections
 
