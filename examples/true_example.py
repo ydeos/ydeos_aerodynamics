@@ -9,6 +9,7 @@ Plot it.
 """
 
 from ydeos_aerodynamics.true import true_wind
+
 from wind_triangle import display_wind_triangle
 
 apparent_wind_speed = 20.
