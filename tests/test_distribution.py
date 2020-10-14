@@ -17,16 +17,16 @@ def test_weibull_pdf():
 def test_weibull_cdf():
     r"""Test the cumulative probability distribution function"""
     assert weibull_cdf(1.) == 0.6321205588285577
-    for x in [float(x) for x in range(1, 100)]:
-        assert weibull_pdf(x) < weibull_cdf(x)
+    for v in [float(x) for x in range(1, 100)]:
+        assert weibull_pdf(v) < weibull_cdf(v)
 
 
 def test_weibull_mean():
     r"""test the mean value"""
     assert weibull_mean() == 0.8942122621661722
     epsilon = 1e-3
-    for x in [float(x) for x in range(1, 100)]:
-        assert weibull_mean(x) < weibull_mean(x + epsilon)
+    for v in [float(x) for x in range(1, 100)]:
+        assert weibull_mean(v) < weibull_mean(v + epsilon)
 
 
 def test_plot_weibull():
