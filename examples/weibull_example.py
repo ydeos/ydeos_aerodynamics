@@ -14,4 +14,4 @@ to_ = 5 * l_
 
 f, a = plot_weibull(to_x=to_, lambda_=l_, k=k_)
 plt.show()
-print("Theoretical average : %.3f" % weibull_mean(lambda_=l_, k=k_))
+print(f"Theoretical average : {weibull_mean(lambda_=l_, k=k_):.3f}")

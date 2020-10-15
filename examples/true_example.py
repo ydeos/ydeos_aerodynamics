@@ -16,7 +16,6 @@ apparent_wind_speed = 20.
 apparent_wind_angle = 110.  # positive on starboard tack
 boatspeed = 10.
 
-
 true_wind_speed_dict = true_wind(apparent_wind_speed,
                                  apparent_wind_angle,
                                  boatspeed)
