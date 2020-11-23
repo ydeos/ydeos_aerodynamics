@@ -86,7 +86,7 @@ def plot_weibull(to_x: float = 3,
 
     axes.set_title(f"Weibull distribution\nlambda={lambda_:.3f}, k={k:.3f} "
                    f"- Mean (theory) : {weibull_mean(lambda_, k):.3f}")
-    axes.set_xlim(xmin=0)
+    axes.set_xlim(left=0)
     # Intentionally not setting an upper limit
     # Will be inferred by the max of samples values
     axes.grid()
